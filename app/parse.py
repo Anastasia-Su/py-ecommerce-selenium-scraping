@@ -1,5 +1,6 @@
 import csv
 import re
+import time
 from dataclasses import dataclass
 
 from selenium.webdriver.remote.webelement import WebElement
@@ -101,6 +102,8 @@ class Scraper:
         self.driver.implicitly_wait(3)
         self.driver.get(page_url)
         self.accept_cookies()
+
+        time.sleep(2)
         self.click_more_button()
 
         products = []
@@ -124,16 +127,18 @@ class Scraper:
             writer = csv.writer(file)
             writer.writerow(Product.__annotations__.keys())
 
-            for product in products:
-                writer.writerow(
-                    [
-                        product.title,
-                        product.description,
-                        product.price,
-                        product.rating,
-                        product.num_of_reviews,
-                    ]
-                )
+            rows_to_write = [
+                [
+                    product.title,
+                    product.description,
+                    product.price,
+                    product.rating,
+                    product.num_of_reviews,
+                ]
+                for product in products
+            ]
+
+            writer.writerows(rows_to_write)
 
     def close_driver(self) -> None:
         self.driver.quit()
